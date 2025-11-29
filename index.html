@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Study — Demo</title>
+  <style>
+    /* 简单样式，全部内联，避免外部依赖 */
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin:0; color:#222; background:#f7f7f8; }
+    header{ background:#111; color:#fff; padding:24px 20px; }
+    .container{ max-width:900px; margin:28px auto; padding:0 18px; }
+    h1{ margin:0 0 6px; font-size:28px; letter-spacing:0.2px; }
+    p.lead{ color:#555; margin:0 0 18px; }
+    .cards{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-top:18px; }
+    .card{ background:#fff; padding:14px; border-radius:10px; box-shadow:0 6px 18px rgba(13,20,30,0.06); border:1px solid rgba(0,0,0,0.03); }
+    footer{ text-align:center; padding:18px; color:#666; font-size:13px; margin-top:36px; }
+    a{ color: #0b63d6; text-decoration:none; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Study — Demo Page</h1>
+      <div style="opacity:.9">示例站点，全部静态资源，适合 GitHub Pages 托管</div>
+    </div>
+  </header>
+
+  <main class="container">
+    <p class="lead">这是一个最小的静态站点模板。把你的文章、练习、实验、图片、示例放到这里就行。</p>
+
+    <div class="cards">
+      <div class="card">
+        <h3>文章 & 教程</h3>
+        <p>写 Markdown → 转成 HTML，或者直接写 HTML 文件放在子目录。</p>
+      </div>
+      <div class="card">
+        <h3>Demo</h3>
+        <p>演示前端代码、交互和示例页面。</p>
+      </div>
+      <div class="card">
+        <h3>资源</h3>
+        <p>图片、图表等静态资源全部放在本仓库，避免外部引用导致国内访问问题。</p>
+      </div>
+    </div>
+
+    <footer>
+      © <span id="year"></span> YourName · Deployed on GitHub Pages
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById('year').innerText = new Date().getFullYear()
+  </script>
+</body>
+</html>
