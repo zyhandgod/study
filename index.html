@@ -1,279 +1,465 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <link rel="icon" type="image/png" href="images/icon.jpg">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Life Moments</title>
 
+  <!-- 浏览器 Tab 图标（小狗） -->
+  <link rel="icon" type="image/png" href="images/icon.jpg" />
+  <link rel="shortcut icon" type="image/png" href="images/icon.jpg" />
+  <link rel="apple-touch-icon" href="images/icon.jpg" />
 
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Life Moments</title>
+    /* 🌈 最底层流光背景 */
+    #flow-bg {
+      position: fixed;
+      inset: 0;
+      z-index: -10;
+      background:
+        linear-gradient(120deg,
+          rgba(255,183,197,0.55),
+          rgba(148,187,233,0.55),
+          rgba(255,215,140,0.55),
+          rgba(182,140,255,0.55)
+        );
+      background-size: 400% 400%;
+      animation: flow 14s ease infinite;
+      filter: blur(40px);
+    }
+    @keyframes flow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
 
-<style>
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: transparent; /* 很关键 */
-}
+    /* 🌫️ 第二层：当前照片模糊背景 */
+    #bg-blur {
+      position: fixed;
+      inset: 0;
+      z-index: -5;
+      background-size: cover;
+      background-position: center;
+      filter: blur(30px) brightness(0.9);
+      opacity: 0.65;
+      transform: scale(1.1);
+      transition: background-image 0.6s ease;
+    }
 
-/* 🌈 最底层：流光背景（真正能看到的背景）*/
-#flow-bg {
-  position: fixed;
-  inset: 0;
-  z-index: -10;
-  background:
-    linear-gradient(120deg,
-      rgba(255, 183, 197, 0.55),
-      rgba(148, 187, 233, 0.55),
-      rgba(255, 215, 140, 0.55),
-      rgba(182, 140, 255, 0.55)
-    );
-  background-size: 400% 400%;
-  animation: flow 14s ease infinite;
-  filter: blur(40px);
-}
+    /* 🔄 首屏加载蒙层 */
+    #loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 20% 20%, #2b2b40, #000000 65%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      color: #fff;
+      transition: opacity 0.6s ease;
+    }
+    #loading-overlay.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .loading-box {
+      text-align: center;
+      padding: 20px 28px;
+      border-radius: 18px;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(14px);
+    }
+    .loader {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 3px solid rgba(255,255,255,0.2);
+      border-top-color: #fff;
+      margin: 0 auto 12px;
+      animation: spin 1s linear infinite;
+    }
+    .loading-text {
+      margin: 0;
+      font-size: 15px;
+    }
+    .loading-tip {
+      margin: 6px 0 0;
+      font-size: 12px;
+      opacity: 0.8;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
 
-@keyframes flow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
+    /* ⭐ 顶部标题（小狗 Logo） */
+    header {
+      position: absolute;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 14px 26px;
+      background: rgba(0,0,0,0.55);
+      border-radius: 18px;
+      backdrop-filter: blur(14px);
+      color: #fff;
+      z-index: 10;
+    }
+    .title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(255,255,255,0.6);
+      box-shadow: 0 0 6px rgba(0,0,0,0.35);
+    }
+    .title-text h1 {
+      margin: 0;
+      font-size: 1.9em;
+    }
+    .title-text p {
+      margin: 4px 0 0;
+      font-size: 0.9em;
+    }
 
-/* 🌫️ 第二层：当前照片的模糊背景，透明一点 */
-#bg-blur {
-  position: fixed;
-  inset: 0;
-  z-index: -5;
-  background-size: cover;
-  background-position: center;
-  filter: blur(30px) brightness(0.9);
-  opacity: 0.65; /* 让流光透出来 */
-  transform: scale(1.1);
-  transition: background-image 0.6s ease;
-}
+    /* 轮播主体 */
+    .slider {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
 
-/* 顶部标题（玻璃拟态） */
-header {
-  position: absolute;
-  top: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 14px 26px;
-  background: rgba(0,0,0,0.55);
-  color: #fff;
-  border-radius: 18px;
-  backdrop-filter: blur(14px);
-  text-align: center;
-  z-index: 10;
-}
+    .slides img {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      height: 100%;
+      width: auto;
+      transform: translate(-50%, -50%) scale(1);
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 1s ease, transform 6s ease;
+    }
+    .slides img.active {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1.06);
+    }
 
-header h1 {
-  margin: 0;
-  font-size: 2em;
-}
-header p {
-  margin: 6px 0 0;
-  font-size: 0.9em;
-}
+    /* 左右按钮 */
+    .prev, .next {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 52px;
+      height: 52px;
+      background: rgba(255,255,255,0.22);
+      backdrop-filter: blur(12px);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2em;
+      cursor: pointer;
+      color: #fff;
+      z-index: 10;
+    }
+    .prev { left: 25px; }
+    .next { right: 25px; }
 
-/* 轮播容器 */
-.slider {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-}
+    /* 缩略图 */
+    .thumbnails {
+      position: absolute;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 14px;
+      z-index: 10;
+    }
+    .thumbnails img {
+      width: 76px;
+      height: 48px;
+      border-radius: 7px;
+      object-fit: cover;
+      opacity: .55;
+      transition: .3s;
+      border: 2px solid transparent;
+      cursor: pointer;
+    }
+    .thumbnails img.active {
+      opacity: 1;
+      transform: scale(1.12);
+      border-color: #2ea5ff;
+    }
 
-/* 全屏图片 */
-.slides img {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  height: 100%;
-  width: auto;
-  transform: translate(-50%, -50%) scale(1);
-  object-fit: cover;
-  opacity: 0;
-  transition: opacity 1s ease, transform 6s ease;
-}
-.slides img.active {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1.06);
-}
+    /* 左下角信息 */
+    .info-box {
+      position: absolute;
+      bottom: 110px;
+      left: 40px;
+      padding: 14px 16px;
+      background: rgba(0,0,0,0.55);
+      color: #fff;
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      z-index: 10;
+      max-width: 320px;
+    }
+    .info-date {
+      font-size: 0.85em;
+      opacity: 0.85;
+    }
+    .info-caption {
+      margin-top: 6px;
+      font-size: 1em;
+    }
+    .info-index {
+      margin-top: 6px;
+      font-size: 0.8em;
+      opacity: 0.7;
+    }
 
-/* 左右切换按钮 */
-.prev, .next {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 52px;
-  height: 52px;
-  background: rgba(255,255,255,0.22);
-  backdrop-filter: blur(12px);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2em;
-  cursor: pointer;
-  color: #fff;
-  z-index: 10;
-}
-.prev { left: 25px; }
-.next { right: 25px; }
-
-/* 缩略图 */
-.thumbnails {
-  position: absolute;
-  bottom: 25px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 14px;
-  z-index: 10;
-}
-.thumbnails img {
-  width: 76px;
-  height: 48px;
-  border-radius: 7px;
-  object-fit: cover;
-  opacity: .55;
-  transition: .3s;
-  border: 2px solid transparent;
-}
-.thumbnails img.active {
-  opacity: 1;
-  transform: scale(1.12);
-  border-color: #2ea5ff;
-}
-
-/* 左下角信息 */
-.info-box {
-  position: absolute;
-  bottom: 110px;
-  left: 40px;
-  padding: 14px 16px;
-  background: rgba(0,0,0,0.55);
-  color: #fff;
-  border-radius: 16px;
-  backdrop-filter: blur(12px);
-  z-index: 10;
-}
-</style>
+    /* 简单手机适配 */
+    @media (max-width: 768px) {
+      header {
+        width: 85%;
+        padding: 10px 18px;
+      }
+      .title-text h1 {
+        font-size: 1.5em;
+      }
+      .info-box {
+        left: 50%;
+        bottom: 90px;
+        transform: translateX(-50%);
+        max-width: 80%;
+        font-size: 0.9em;
+      }
+      .prev, .next {
+        width: 44px;
+        height: 44px;
+        font-size: 1.6em;
+      }
+    }
+  </style>
 </head>
 
 <body>
-
-<!-- 流光背景 -->
-<div id="flow-bg"></div>
-
-<!-- 模糊背景 -->
-<div id="bg-blur"></div>
-
-<header>
-  <h1>Life Moments</h1>
-  <p>愿我们的生活像这些照片一样美好</p>
-</header>
-
-<div class="slider">
-  <div class="slides"></div>
-  <div class="prev">&#10094;</div>
-  <div class="next">&#10095;</div>
-  <div class="thumbnails"></div>
-
-  <div class="info-box">
-    <div id="infoDate"></div>
-    <div id="infoCaption"></div>
-    <div id="infoIndex"></div>
+  <!-- 首屏加载蒙层 -->
+  <div id="loading-overlay">
+    <div class="loading-box">
+      <div class="loader"></div>
+      <p class="loading-text">正在为你加载照片…</p>
+      <p class="loading-tip">照片有点多，稍等一下下哦～</p>
+    </div>
   </div>
-</div>
 
-<script>
-const folder = "images/";
-const photos = [
-  { file:"pic1.jpg", date:"2024 · 春天", caption:"窝在沙发上的你" },
-  { file:"pic2.jpg", date:"2024 · 夏天", caption:"午后温暖的你" },
-  { file:"pic3.jpg", date:"2024 · 秋天", caption:"蜷缩沙发" },
-  { file:"pic4.jpg", date:"2024 · 冬天", caption:"跳舞" },
-  { file:"pic5.jpg", date:"某一天", caption:"看着你突然很想你" },
-  { file:"pic6.jpg", date:"以后 · 每一天", caption:"愿我们的生活像这些照片一样美好" }
-];
-const totalImages = photos.length;
+  <!-- 流光背景 + 模糊背景 -->
+  <div id="flow-bg"></div>
+  <div id="bg-blur"></div>
 
-const slides = document.querySelector(".slides");
-const thumbs = document.querySelector(".thumbnails");
-const bgBlur = document.getElementById("bg-blur");
+  <!-- 标题栏：小狗 + 标题 + 副标题 -->
+  <header>
+    <div class="title-wrap">
+      <div class="title-text">
+        <h1>Life Moments</h1>
+        <p>愿我们的生活像这些照片一样美好</p>
+      </div>
+    </div>
+  </header>
 
-photos.forEach((p, i) => {
-  const img = document.createElement("img");
-  img.src = folder + p.file;
-  if (i===0) img.classList.add("active");
-  slides.appendChild(img);
+  <!-- 主轮播 -->
+  <div class="slider">
+    <div class="slides"></div>
+    <div class="prev">&#10094;</div>
+    <div class="next">&#10095;</div>
+    <div class="thumbnails"></div>
 
-  const t = document.createElement("img");
-  t.src = folder + p.file;
-  if (i===0) t.classList.add("active");
-  t.dataset.idx=i;
-  thumbs.appendChild(t);
-});
+    <div class="info-box">
+      <div class="info-date" id="infoDate"></div>
+      <div class="info-caption" id="infoCaption"></div>
+      <div class="info-index" id="infoIndex"></div>
+    </div>
+  </div>
 
-const slideImgs = document.querySelectorAll(".slides img");
-const thumbImgs = document.querySelectorAll(".thumbnails img");
+  <!-- 背景音乐（放你自己的钢琴曲 audio/bgm.wav） -->
+  <audio id="bgm" src="audio/bgm.wav" loop></audio>
 
-let index = 0;
+  <script>
+    // ========= 配置 =========
+    const folder = "images/";
+    const photos = [
+      { file:"pic1.jpg", date:"2024 · 春天",    caption:"和宝宝第一次玩球" },
+      { file:"pic2.jpg", date:"2024 · 夏天",    caption:"午后温暖的你" },
+      { file:"pic3.jpg", date:"2024 · 秋天",    caption:"一起散步的黄昏" },
+      { file:"pic4.jpg", date:"2024 · 冬天",    caption:"窝在沙发上的你" },
+      { file:"pic5.jpg", date:"某一天",        caption:"看着你突然很想你" },
+      { file:"pic6.jpg", date:"以后 · 每一天", caption:"愿我们的生活像这些照片一样美好" }
+    ];
+    const totalImages = photos.length;
 
-function show(i) {
-  slideImgs.forEach((img, j) => img.classList.toggle("active", j===i));
-  thumbImgs.forEach((img, j) => img.classList.toggle("active", j===i));
+    // ========= DOM 引用 =========
+    const slides = document.querySelector(".slides");
+    const thumbs = document.querySelector(".thumbnails");
+    const bgBlur = document.getElementById("bg-blur");
+    const loadingOverlay = document.getElementById("loading-overlay");
+    const infoDate = document.getElementById("infoDate");
+    const infoCaption = document.getElementById("infoCaption");
+    const infoIndex = document.getElementById("infoIndex");
 
-  bgBlur.style.backgroundImage = `url(${folder}${photos[i].file})`;
+    let index = 0;
+    let timer = null;
+    let resumeTimer = null;
+    let firstMainLoaded = false;
 
-  index = i;
-  document.getElementById("infoDate").textContent = photos[i].date;
-  document.getElementById("infoCaption").textContent = photos[i].caption;
-  document.getElementById("infoIndex").textContent = `${i+1}/${totalImages}`;
-}
+    // ========= 生成图片，并处理首张加载完成隐藏蒙层 =========
+    photos.forEach((p, i) => {
+      const img = document.createElement("img");
+      img.className = "";
+      img.alt = p.caption || "";
+      if (i === 0) img.classList.add("active");
 
-show(0);
+      // 首张大图加载完后隐藏 loading
+      if (i === 0) {
+        img.onload = () => {
+          if (!firstMainLoaded) {
+            firstMainLoaded = true;
+            loadingOverlay.classList.add("hide");
+            setTimeout(() => loadingOverlay.remove(), 700);
+          }
+        };
+      }
 
-// 自动轮播
-let timer = setInterval(()=>show((index+1)%totalImages),6000);
+      img.src = folder + p.file;  // onload 已挂好，再赋 src
+      slides.appendChild(img);
 
-function pause() {
-  clearInterval(timer);
-  timer = setInterval(()=>show((index+1)%totalImages),6000);
-}
+      // 缩略图
+      const t = document.createElement("img");
+      t.src = folder + p.file;
+      t.dataset.idx = i;
+      if (i === 0) t.classList.add("active");
+      thumbs.appendChild(t);
+    });
 
-document.querySelector(".prev").onclick=()=>{show((index-1+totalImages)%totalImages);pause();}
-document.querySelector(".next").onclick=()=>{show((index+1)%totalImages);pause();}
-thumbImgs.forEach(t=>t.onclick=()=>{show(parseInt(t.dataset.idx));pause();});
-</script>
+    const slideImgs = document.querySelectorAll(".slides img");
+    const thumbImgs = document.querySelectorAll(".thumbnails img");
 
-<audio id="bgm" src="audio/bgm.wav" loop></audio>
+    // 兜底：最多等 6 秒自动关闭 loading
+    setTimeout(() => {
+      if (!firstMainLoaded) {
+        loadingOverlay.classList.add("hide");
+        setTimeout(() => loadingOverlay.remove(), 700);
+      }
+    }, 6000);
 
-<script>
-// PC 端：页面加载后尝试自动播放
-window.addEventListener("load", () => {
-  const bgm = document.getElementById("bgm");
-  bgm.volume = 0.35; // 音量 0~1
-  bgm.play().catch(() => {
-    // 某些浏览器不允许无交互自动播放，没关系，等点击
-  });
-});
+    // ========= 显示指定下标的图片 =========
+    function updateInfo(i) {
+      const p = photos[i];
+      infoDate.textContent = p.date;
+      infoCaption.textContent = p.caption;
+      infoIndex.textContent = `${i + 1} / ${totalImages}`;
+    }
 
-// 移动端：用户第一次点击页面后开始播放
-function enableBgm() {
-  const bgm = document.getElementById("bgm");
-  bgm.volume = 0.35;
-  bgm.play().catch(() => {});
-  document.removeEventListener("click", enableBgm);
-}
-document.addEventListener("click", enableBgm);
-</script>
+    function show(i) {
+      slideImgs.forEach((img, j) => img.classList.toggle("active", j === i));
+      thumbImgs.forEach((img, j) => img.classList.toggle("active", j === i));
+      index = i;
 
+      bgBlur.style.backgroundImage = `url(${folder}${photos[i].file})`;
+      updateInfo(i);
+    }
 
+    // 初始化首张
+    if (totalImages > 0) {
+      bgBlur.style.backgroundImage = `url(${folder}${photos[0].file})`;
+      updateInfo(0);
+    }
+
+    // ========= 自动轮播 + 用户操作暂停恢复 =========
+    function startAuto() {
+      clearInterval(timer);
+      timer = setInterval(() => {
+        show((index + 1) % totalImages);
+      }, 6000);
+    }
+
+    function userAction() {
+      clearInterval(timer);
+      clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(startAuto, 3000); // 3 秒后恢复自动轮播
+    }
+
+    // 左右按钮
+    document.querySelector(".prev").onclick = () => {
+      show((index - 1 + totalImages) % totalImages);
+      userAction();
+    };
+    document.querySelector(".next").onclick = () => {
+      show((index + 1) % totalImages);
+      userAction();
+    };
+
+    // 缩略图点击
+    thumbImgs.forEach(t => {
+      t.onclick = () => {
+        const i = parseInt(t.dataset.idx, 10);
+        show(i);
+        userAction();
+      };
+    });
+
+    // 手机简单滑动切换
+    let startX = 0;
+    document.body.addEventListener("touchstart", e => {
+      startX = e.touches[0].clientX;
+    });
+    document.body.addEventListener("touchend", e => {
+      const endX = e.changedTouches[0].clientX;
+      if (endX - startX > 80) {
+        show((index - 1 + totalImages) % totalImages);
+        userAction();
+      } else if (startX - endX > 80) {
+        show((index + 1) % totalImages);
+        userAction();
+      }
+    });
+
+    // ========= 背景音乐：PC 尝试自动播放，移动端首点播放 =========
+    window.addEventListener("load", () => {
+      const bgm = document.getElementById("bgm");
+      if (!bgm) return;
+      bgm.volume = 0.35;
+      bgm.play().catch(() => {});
+    });
+
+    function enableBgm() {
+      const bgm = document.getElementById("bgm");
+      if (!bgm) return;
+      bgm.volume = 0.35;
+      bgm.play().catch(() => {});
+      document.removeEventListener("click", enableBgm);
+    }
+    document.addEventListener("click", enableBgm);
+
+    // 启动自动轮播
+    if (totalImages > 1) {
+      startAuto();
+    }
+  </script>
 </body>
 </html>
