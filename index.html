@@ -1,170 +1,176 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+    <link rel="icon" type="image/png" href="images/icon.jpg">
+
+
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Life Moments</title>
 
 <style>
 html, body {
-  margin:0; padding:0; width:100%; height:100%;
-  background:#000;
-  font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  overflow:hidden;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent; /* 很关键 */
 }
 
-/* 背景柔光动态渐变 */
-body::before {
-  content:"";
-  position:fixed; inset:0;
-  background:linear-gradient(120deg, #222831, #1a1f29, #2d3240, #1d2129);
-  background-size:400% 400%;
-  animation:flow 16s ease-in-out infinite;
-  z-index:-5;
+/* 🌈 最底层：流光背景（真正能看到的背景）*/
+#flow-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  background:
+    linear-gradient(120deg,
+      rgba(255, 183, 197, 0.55),
+      rgba(148, 187, 233, 0.55),
+      rgba(255, 215, 140, 0.55),
+      rgba(182, 140, 255, 0.55)
+    );
+  background-size: 400% 400%;
+  animation: flow 14s ease infinite;
+  filter: blur(40px);
 }
+
 @keyframes flow {
-  0%{background-position:0% 50%;}
-  50%{background-position:100% 50%;}
-  100%{background-position:0% 50%;}
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-/* 背景：模糊大背景 */
+/* 🌫️ 第二层：当前照片的模糊背景，透明一点 */
 #bg-blur {
-  position:fixed; inset:0;
-  background-size:cover;
-  background-position:center;
-  filter:blur(40px) brightness(0.55) saturate(1.35);
-  transform:scale(1.12);
-  z-index:-4;
-  transition:background-image 1s ease;
-}
-
-/* 背景：主色氛围层 */
-#color-bg {
-  position:fixed; inset:0;
-  transform:scale(1.15);
-  filter:blur(80px);
-  z-index:-3;
-  transition:background 1.2s ease-in-out;
+  position: fixed;
+  inset: 0;
+  z-index: -5;
+  background-size: cover;
+  background-position: center;
+  filter: blur(30px) brightness(0.9);
+  opacity: 0.65; /* 让流光透出来 */
+  transform: scale(1.1);
+  transition: background-image 0.6s ease;
 }
 
 /* 顶部标题（玻璃拟态） */
 header {
-  position:absolute;
-  top:35px; left:50%; transform:translateX(-50%);
-  background:rgba(0,0,0,0.55);
-  padding:14px 26px;
-  border-radius:18px;
-  backdrop-filter:blur(14px);
-  color:#fff;
-  z-index:20;
-  text-align:center;
-  opacity:0;
-  animation:fadeDown 1.3s ease forwards;
+  position: absolute;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 14px 26px;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  border-radius: 18px;
+  backdrop-filter: blur(14px);
+  text-align: center;
+  z-index: 10;
 }
-@keyframes fadeDown {
-  to{opacity:1; transform:translateX(-50%) translateY(0);}
-}
-header h1 { margin:0; font-size:2em; }
-header p { margin-top:6px; opacity:0.85; }
 
-/* 主区域 */
-.slider { position:relative; width:100%; height:100%; }
+header h1 {
+  margin: 0;
+  font-size: 2em;
+}
+header p {
+  margin: 6px 0 0;
+  font-size: 0.9em;
+}
+
+/* 轮播容器 */
+.slider {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
 
 /* 全屏图片 */
 .slides img {
-  position:absolute;
-  top:50%; left:50%;
-  height:100%;
-  width:auto;
-  object-fit:cover;
-  opacity:0;
-  transform:translate(-50%,-50%) scale(1);
-  transition:opacity 1s ease, transform 7s ease;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 100%;
+  width: auto;
+  transform: translate(-50%, -50%) scale(1);
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1s ease, transform 6s ease;
 }
 .slides img.active {
-  opacity:1;
-  transform:translate(-50%,-50%) scale(1.05);
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.06);
 }
 
-/* 左右按钮 */
+/* 左右切换按钮 */
 .prev, .next {
-  position:absolute; top:50%;
-  width:52px; height:52px;
-  transform:translateY(-50%);
-  background:rgba(255,255,255,0.22);
-  backdrop-filter:blur(12px);
-  border-radius:50%;
-  display:flex; align-items:center; justify-content:center;
-  font-size:2em; color:#fff;
-  cursor:pointer; user-select:none;
-  z-index:20;
-  transition:0.3s;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 52px;
+  height: 52px;
+  background: rgba(255,255,255,0.22);
+  backdrop-filter: blur(12px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2em;
+  cursor: pointer;
+  color: #fff;
+  z-index: 10;
 }
-.prev:hover, .next:hover { background:rgba(255,255,255,0.33); }
-.prev { left:25px; }
-.next { right:25px; }
+.prev { left: 25px; }
+.next { right: 25px; }
 
 /* 缩略图 */
 .thumbnails {
-  position:absolute;
-  bottom:25px; left:50%; transform:translateX(-50%);
-  display:flex; gap:14px; z-index:20;
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 14px;
+  z-index: 10;
 }
 .thumbnails img {
-  width:76px; height:48px; object-fit:cover;
-  border-radius:7px;
-  opacity:0.55;
-  border:2px solid transparent;
-  cursor:pointer; transition:0.3s;
+  width: 76px;
+  height: 48px;
+  border-radius: 7px;
+  object-fit: cover;
+  opacity: .55;
+  transition: .3s;
+  border: 2px solid transparent;
 }
-.thumbnails img:hover { opacity:1; transform:scale(1.08); }
 .thumbnails img.active {
-  opacity:1;
-  border-color:#2ea5ff;
-  transform:scale(1.15);
+  opacity: 1;
+  transform: scale(1.12);
+  border-color: #2ea5ff;
 }
 
-/* 相册信息 */
+/* 左下角信息 */
 .info-box {
-  position:absolute;
-  left:40px; bottom:100px;
-  background:rgba(0,0,0,0.55);
-  padding:14px 18px;
-  border-radius:16px;
-  backdrop-filter:blur(14px);
-  z-index:20;
-  color:#fff;
-  max-width:300px;
-}
-.info-date {
-  opacity:0.85; font-size:0.85em;
-}
-.info-caption {
-  margin-top:6px; font-size:1em;
-}
-.info-index {
-  margin-top:6px; opacity:0.7; font-size:0.8em;
-}
-
-/* Lightbox */
-#lightbox {
-  position:fixed; inset:0;
-  background:rgba(0,0,0,0.92);
-  display:none;
-  justify-content:center; align-items:center;
-  z-index:50;
-}
-#lightbox img {
-  max-width:90%; max-height:90%;
-  border-radius:10px;
+  position: absolute;
+  bottom: 110px;
+  left: 40px;
+  padding: 14px 16px;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  z-index: 10;
 }
 </style>
 </head>
 
 <body>
 
-<div id="color-bg"></div>
+<!-- 流光背景 -->
+<div id="flow-bg"></div>
+
+<!-- 模糊背景 -->
 <div id="bg-blur"></div>
 
 <header>
@@ -179,188 +185,95 @@ header p { margin-top:6px; opacity:0.85; }
   <div class="thumbnails"></div>
 
   <div class="info-box">
-    <div class="info-date" id="infoDate"></div>
-    <div class="info-caption" id="infoCaption"></div>
-    <div class="info-index" id="infoIndex"></div>
+    <div id="infoDate"></div>
+    <div id="infoCaption"></div>
+    <div id="infoIndex"></div>
   </div>
 </div>
 
-<div id="lightbox">
-  <img id="lightImg">
-</div>
-
 <script>
-/* ===== 相册配置 ===== */
-const folder = "https://cdn.jsdelivr.net/gh/zyhandgod/study/images/";
-
+const folder = "images/";
 const photos = [
-  { file:"pic1.jpg", date:"2024 · 春天", caption:"和宝宝第一次玩球" },
+  { file:"pic1.jpg", date:"2024 · 春天", caption:"窝在沙发上的你" },
   { file:"pic2.jpg", date:"2024 · 夏天", caption:"午后温暖的你" },
-  { file:"pic3.jpg", date:"2024 · 秋天", caption:"一起散步的黄昏" },
-  { file:"pic4.jpg", date:"2024 · 冬天", caption:"窝在沙发上的你" },
+  { file:"pic3.jpg", date:"2024 · 秋天", caption:"蜷缩沙发" },
+  { file:"pic4.jpg", date:"2024 · 冬天", caption:"跳舞" },
   { file:"pic5.jpg", date:"某一天", caption:"看着你突然很想你" },
   { file:"pic6.jpg", date:"以后 · 每一天", caption:"愿我们的生活像这些照片一样美好" }
 ];
-
 const totalImages = photos.length;
 
-/* 动态生成图片 */
 const slides = document.querySelector(".slides");
 const thumbs = document.querySelector(".thumbnails");
 const bgBlur = document.getElementById("bg-blur");
-const colorBg = document.getElementById("color-bg");
 
 photos.forEach((p, i) => {
   const img = document.createElement("img");
   img.src = folder + p.file;
-  img.crossOrigin = "Anonymous";
-  if (i === 0) img.classList.add("active");
+  if (i===0) img.classList.add("active");
   slides.appendChild(img);
 
-  const th = document.createElement("img");
-  th.src = folder + p.file;
-  th.crossOrigin = "Anonymous";
-  th.dataset.idx = i;
-  if (i === 0) th.classList.add("active");
-  thumbs.appendChild(th);
+  const t = document.createElement("img");
+  t.src = folder + p.file;
+  if (i===0) t.classList.add("active");
+  t.dataset.idx=i;
+  thumbs.appendChild(t);
 });
 
-let slideImgs = document.querySelectorAll(".slides img");
-let thumbImgs = document.querySelectorAll(".thumbnails img");
+const slideImgs = document.querySelectorAll(".slides img");
+const thumbImgs = document.querySelectorAll(".thumbnails img");
 
-/* ===== 更新相册信息 ===== */
-const infoDate = document.getElementById("infoDate");
-const infoCaption = document.getElementById("infoCaption");
-const infoIndex = document.getElementById("infoIndex");
-
-function updateInfo(i){
-  infoDate.textContent = photos[i].date;
-  infoCaption.textContent = photos[i].caption;
-  infoIndex.textContent = `${i+1} / ${totalImages}`;
-}
-
-/* ===== AI 提取图片主色 ===== */
-function getDominantColor(imgElement, callback){
-  const img = new Image();
-  img.crossOrigin = "Anonymous";
-  img.src = imgElement.src;
-
-  img.onload = function(){
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-
-    canvas.width = img.width / 20;
-    canvas.height = img.height / 20;
-
-    ctx.drawImage(img, 0,0,canvas.width,canvas.height);
-
-    const data = ctx.getImageData(0,0,canvas.width,canvas.height).data;
-    let r=0,g=0,b=0,count=0;
-
-    for (let i=0;i<data.length;i+=4){
-      r+=data[i];
-      g+=data[i+1];
-      b+=data[i+2];
-      count++;
-    }
-
-    r=Math.round(r/count);
-    g=Math.round(g/count);
-    b=Math.round(b/count);
-
-    callback({r,g,b});
-  };
-}
-
-/* ===== 更新背景主色 ===== */
-function updateColorBackground(i){
-  getDominantColor(slideImgs[i], ({r,g,b})=>{
-    const c1 = `rgba(${r+40},${g+40},${b+40},0.85)`;
-    const c2 = `rgba(${r},${g},${b},0.55)`;
-    colorBg.style.background =
-      `radial-gradient(circle at 30% 30%, ${c1}, ${c2})`;
-  });
-}
-
-/* ===== 切换图片 ===== */
 let index = 0;
 
-function show(i){
-  slideImgs.forEach((img,j)=> img.classList.toggle("active",j===i));
-  thumbImgs.forEach((img,j)=> img.classList.toggle("active",j===i));
-  index = i;
+function show(i) {
+  slideImgs.forEach((img, j) => img.classList.toggle("active", j===i));
+  thumbImgs.forEach((img, j) => img.classList.toggle("active", j===i));
 
   bgBlur.style.backgroundImage = `url(${folder}${photos[i].file})`;
-  updateInfo(i);
-  updateColorBackground(i);
+
+  index = i;
+  document.getElementById("infoDate").textContent = photos[i].date;
+  document.getElementById("infoCaption").textContent = photos[i].caption;
+  document.getElementById("infoIndex").textContent = `${i+1}/${totalImages}`;
 }
 
-/* 初始化 */
-bgBlur.style.backgroundImage = `url(${folder}${photos[0].file})`;
-updateInfo(0);
-updateColorBackground(0);
+show(0);
 
-/* ===== 自动轮播 + 暂停恢复 ===== */
-let autoTimer = null, resumeTimer = null;
-const AUTO_INTERVAL = 6000, RESUME_DELAY = 3000;
+// 自动轮播
+let timer = setInterval(()=>show((index+1)%totalImages),6000);
 
-function startAuto(){
-  clearInterval(autoTimer);
-  autoTimer = setInterval(()=> show((index+1)%totalImages), AUTO_INTERVAL);
+function pause() {
+  clearInterval(timer);
+  timer = setInterval(()=>show((index+1)%totalImages),6000);
 }
-function pauseAndResume(){
-  clearInterval(autoTimer);
-  clearTimeout(resumeTimer);
-  resumeTimer = setTimeout(()=> startAuto(), RESUME_DELAY);
-}
-startAuto();
 
-/* ===== 控制事件 ===== */
-document.querySelector(".prev").onclick = ()=>{
-  show((index-1+totalImages)%totalImages);
-  pauseAndResume();
-};
-document.querySelector(".next").onclick = ()=>{
-  show((index+1)%totalImages);
-  pauseAndResume();
-};
-
-thumbImgs.forEach(t=>{
-  t.onclick = ()=>{
-    show(parseInt(t.dataset.idx));
-    pauseAndResume();
-  };
-});
-
-/* ===== 手机手势滑动 ===== */
-let startX = 0;
-document.body.addEventListener("touchstart", e=>{
-  startX = e.touches[0].clientX;
-});
-document.body.addEventListener("touchend", e=>{
-  const endX = e.changedTouches[0].clientX;
-  if(endX - startX > 80){
-    show((index-1+totalImages)%totalImages);
-    pauseAndResume();
-  } else if(startX - endX > 80){
-    show((index+1)%totalImages);
-    pauseAndResume();
-  }
-});
-
-/* ===== Lightbox ===== */
-const lightbox = document.getElementById("lightbox");
-const lightImg = document.getElementById("lightImg");
-
-slideImgs.forEach(img=>{
-  img.onclick = ()=>{
-    lightImg.src = img.src;
-    lightbox.style.display="flex";
-    pauseAndResume();
-  };
-});
-lightbox.onclick = ()=> lightbox.style.display="none";
-
+document.querySelector(".prev").onclick=()=>{show((index-1+totalImages)%totalImages);pause();}
+document.querySelector(".next").onclick=()=>{show((index+1)%totalImages);pause();}
+thumbImgs.forEach(t=>t.onclick=()=>{show(parseInt(t.dataset.idx));pause();});
 </script>
+
+<audio id="bgm" src="audio/bgm.wav" loop></audio>
+
+<script>
+// PC 端：页面加载后尝试自动播放
+window.addEventListener("load", () => {
+  const bgm = document.getElementById("bgm");
+  bgm.volume = 0.35; // 音量 0~1
+  bgm.play().catch(() => {
+    // 某些浏览器不允许无交互自动播放，没关系，等点击
+  });
+});
+
+// 移动端：用户第一次点击页面后开始播放
+function enableBgm() {
+  const bgm = document.getElementById("bgm");
+  bgm.volume = 0.35;
+  bgm.play().catch(() => {});
+  document.removeEventListener("click", enableBgm);
+}
+document.addEventListener("click", enableBgm);
+</script>
+
+
 </body>
 </html>
